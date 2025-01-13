@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{# Inherit from the base template to maintain consistent layout #}
+
+{% block title %}Home - Movie App{% endblock %}
+{# Define the title of the page; this will be inserted into the title block of the base template #}
+
+{% block content %}
+{# Begin the content block; content here will be inserted into the base template's content area #}
+
+    {% if user.is_authenticated %}
+    {# Check if the user is logged in; display the following links only for authenticated users #}
+
+        <a href="{{ url_for('display_movies') }}" class="view-all-movies">View all movies</a>
+        {# Link to the 'display_movies' route; 'view-all-movies' is a CSS class for styling #}
+
+        <br>
+        {# Line break for spacing between links #}
+
+        <a href="{{ url_for('display_watchlist') }}" class="view-my-watchlist">View my watchlist</a>
+        {# Link to the 'display_watchlist' route; 'view-my-watchlist' is a CSS class for styling #}
+
+    {% endif %}
+    {# End of the authenticated user check #}
+
+{% endblock %}
+{# End of the content block #}
+
+
+
+
+
+
+

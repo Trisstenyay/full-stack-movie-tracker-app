@@ -1,6 +1,13 @@
-# Capstone Project One
+# Capstone Project One - Movie Application
 
-We have broken down the Capstone Project into easy-to-follow steps. Each step of the capstone contains a link with instructions for that step. Here’s a quick overview of what you’ll do for each step of your capstone project:
+This project aims to create a dynamic, user-friendly website that serves as a personal movie and TV show tracker. The platform will allow users to search for movies and TV shows, create and manage a personalized watchlist, rate and review titles they've seen, and mark items as "completed."
+
+I listed basic features like Sign-up, Log-in, Log-out, View all movies, Search all movies, add to watchlist, and reviews.
+
+I used HTML, CSS, Javascript, Python, Flask, Postgresql, SQLAlchemy, Jinja
+
+### API used:[TMDB](https://www.themoviedb.org/)
+
 
 1. Step One: Initial Project Ideas: You’ll pick up to 3 project ideas to propose to your mentor and the Springboard community. You’ll also explore some potential APIs.
 2. Step Two: Project Proposal: For this step, you’ll write a proposal for the site you want to build. This will help your mentor better understand your chosen capstone project idea.
@@ -54,3 +61,6 @@ project with a million moving parts you can get stuck in.
 3. The first two steps require mentor approval to proceed, but after that, you are free to continue working on the project after you submit your work. For instance, you don’t need your mentor to approve your database schema before you start working on your site. Likewise, you don’t need your mentor to approve the first iteration of your site before you start polishing it.
 4. If you get stuck, there is a wealth of resources at your disposal. The course contains all of the material you will need to complete this project, but a well-phrased Google search might yield you an immediate solution to your problem. Don’t forget that your Slack community, TAs, and your mentor there to help you out.
 5. Make sure you use a free API and deploy your project on Heroku , so everyone can see your work!
+
+
+

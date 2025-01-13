@@ -1,0 +1,26 @@
+{% extends "base.html" %}  <!-- Inherits the base template to maintain consistent layout and structure across pages -->
+
+{% block content %}  <!-- Defines the content block that will be inserted into the base template -->
+
+<div class="container">  <!-- Creates a container div for styling and layout purposes -->
+    <h1>My Watchlist</h1>  <!-- Displays the main heading of the page -->
+    <ul>  <!-- Starts an unordered list to display the movies -->
+        {% for movie in movies %}  <!-- Begins a loop to iterate over each movie in the 'movies' context variable -->
+        <li>  <!-- Starts a list item for each movie -->
+            <strong>{{ movie.title }}</strong>  <!-- Displays the title of the movie in bold -->
+            - Released: {{ movie.release_date }}  <!-- Displays the release date of the movie -->
+            <p>{{ movie.overview }}</p>  <!-- Displays a brief overview or description of the movie -->
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="Movie Poster">  <!-- Displays the movie poster image with a specified width of 500 pixels -->
+        </li>  <!-- Ends the list item -->
+        {% endfor %}  <!-- Ends the loop -->
+    </ul>  <!-- Ends the unordered list -->
+
+    {% if not movies %}  <!-- Checks if the 'movies' list is empty -->
+        <p>No movies available to display.</p>  <!-- Displays a message indicating no movies are available -->
+    {% endif %}  <!-- Ends the if statement -->
+</div>  <!-- Ends the container div -->
+
+{% endblock %}  <!-- Ends the content block -->
+
+
+

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Specify the character encoding for the HTML document -->
+    <meta charset="UTF-8">
+    <!-- Set the viewport to ensure the page is responsive on all devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Define the title of the document -->
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Link to the custom CSS file located in the 'static' directory -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-container">
+    <!-- Main heading for the login page -->
+    <h2>Login</h2>
+    <!-- Form for user login; uses POST method to submit data securely -->
+    <form method="POST">
+        <!-- Label for the username input field -->
+        <label for="username"><strong>Username</strong></label>
+        <!-- Input field for the username; 'user-info' class applies custom styles -->
+        <input class="user-info" type="text" id="username" name="username" required>
+        <br>
+        <!-- Label for the password input field -->
+        <label for="password"><strong>Password</strong></label>
+        <!-- Input field for the password; 'user-info' class applies custom styles -->
+        <input class="user-info" type="password" id="password" name="password" required>
+        <br>
+        <!-- Submit button for the form; 'button' class applies custom styles -->
+        <button class="button" type="submit">Login</button>
+    </form>
+
+
+    <div class="container mt-3">
+        <!-- Retrieves and displays flashed messages, if any -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <!-- Iterates over each message and displays it with appropriate styling -->
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <!-- Button to close the alert -->
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+<!-- This line indicates that the current template extends the "base.html" template. 
+     It means that "base.html" provides a common structure, and this template fills in specific blocks within that structure. -->
+
+{% block content %}
+<!-- This block defines the content that will be inserted into the "content" block of the "base.html" template. -->
+
+    <h2>Profile</h2>
+    <!-- Displays a level 2 heading with the text "Profile". -->
+
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <!-- Displays the user's username. The {{ user.username }} is a placeholder that will be replaced with the actual username of the logged-in user. -->
+
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <!-- Displays the user's email address. The {{ user.email }} is a placeholder that will be replaced with the actual email of the logged-in user. -->
+
+    <a href="{{ url_for('profile') }}">Profile</a>
+    <!-- Provides a link to the profile page. The url_for('profile') function generates the URL for the 'profile' view. 
+         This link might be redundant if the user is already on the profile page. -->
+{% endblock %}
+
