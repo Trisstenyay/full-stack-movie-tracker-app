@@ -1,0 +1,86 @@
+{% extends "base.html" %}  <!-- Extends the base layout for consistent structure across pages -->
+
+{% block title %}Search Movies/TV Shows{% endblock %}  <!-- Defines the title of the page as "Search Movies/TV Shows" -->
+
+{% block content %}
+    <main>
+        <div class="container">
+        
+        <!-- Search Form Section -->
+        <section class="search-form">
+            <h2>Search Movies/TV Shows</h2>
+            <!-- Form that sends a GET request to the 'search' route with the user's search input -->
+            <form action="{{ url_for('search') }}" method="get">
+                <div class="form-group">
+                    <!-- Input field for the search query (movie or TV show title) -->
+                    <input class="user-info search-control" type="text" name="query" placeholder="Enter movie or TV show title" required>
+                    
+                    <!-- Dropdown to select the type of media to search for (movie or TV show) -->
+                    <select class="user-info search-control" name="type">
+                        <option value="movie">Movie</option>
+                        <option value="tv">TV Show</option>
+                    </select>
+                    
+                    <!-- Button to submit the search form -->
+                    <button class="button" type="submit">Search</button>
+                </div>
+            </form>
+        </section>
+        
+        <!-- Display Search Results -->
+        {% if results %}
+        <section class="results">
+            <h2 class="text-center my-4">Search Results</h2>
+            <div class="row">
+                <!-- Loop through each search result and display it -->
+                {% for item in results %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                    <div class="result-card">
+                        <!-- Image for the movie or TV show poster -->
+                        <img src="https://image.tmdb.org/t/p/w200{{ item.poster_path }}" class="card-img-top" alt="{{ item.title or item.name }} poster">
+                        <div class="card-body">
+                            <!-- Display the title of the movie or TV show -->
+                            <h5 class="card-title">{{ item.title or item.name }}</h5>
+                            <!-- Display the release date of the movie or TV show -->
+                            <p class="card-text"><small class="text-muted">Release Date: {{ item.release_date or item.first_air_date }}</small></p>
+                            <!-- Display the rating of the movie or TV show -->
+                            <p class="card-text">Rating: {{ item.vote_average }}/10</p>
+                        </div> 
+                        
+                        <!-- Footer with form to add the item to the watchlist -->
+                        <div class="card-footer">   
+                        <form action="{{ url_for('add_to_watchlist') }}" method="post">
+                            <!-- Hidden fields that pass essential data for the movie or TV show to be added to the watchlist -->
+                            <input type="hidden" name="media_id" value="{{ item.id }}">
+                            <input type="hidden" name="title" value="{{ item.title or item.name }}">
+                            <input type="hidden" name="media_type" value="{{ 'movie' if item.title else 'tv' }}">
+                            
+                            <!-- Dropdown to select the status of the movie/TV show in the watchlist -->
+                            <div class="form-group">
+                                <label for="status-{{ item.id }}">Status:</label>
+                                <select name="status" id="status-{{ item.id }}" class="form-control">
+                                    <option value="watching">Watching</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Button to submit the form and add the movie/TV show to the watchlist -->
+                            <button type="submit">Add to Watchlist</button>
+                        </form>
+                        </div>  
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        
+        <!-- Message when no results are found -->
+        {% elif query %}
+        <p>No results found for "{{ query }}".</p>
+        {% endif %}
+        
+        </div>
+    </main>
+{% endblock %}

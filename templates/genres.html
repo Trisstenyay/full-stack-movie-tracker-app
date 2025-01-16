@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{# Inherits the layout and structure from base.html #}
+
+{% block title %}
+Genres - My App
+{# Sets the title of the page to "Genres - My App" #}
+{% endblock %}
+
+{% block content %}
+    <h2>Genres List</h2>
+    {# Header for the genres list section #}
+    <ul>
+        {# Begins an unordered list to display genres #}
+        {% for genre in genres %}
+            {# Loops through each genre in the genres list #}
+            <li>{{ genre.name }}</li>
+            {# Displays the name of the current genre in a list item #}
+        {% endfor %}
+    </ul>
+    {# Ends the unordered list #}
+{% endblock %}
+

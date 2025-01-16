@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Specifies the character encoding for the HTML document -->
+    <meta charset="UTF-8">
+    <!-- Sets the viewport to ensure the page is responsive on all devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Links to Bootstrap CSS for styling and responsive design -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Links to custom CSS file for additional styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Defines the title of the document; can be overridden by child templates -->
+    <title>{% block title %}My Movies App{% endblock %}</title>
+</head>
+
+<body style="background-color: grey;">
+    <header>
+        <!-- Navigation bar with Bootstrap classes for styling -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <!-- Brand name linking to the home page -->
+                <a class="navbar-brand text-white" href="{{ url_for('home') }}">My Movies App</a>
+                <!-- Button for toggling the navbar on smaller screens -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- Collapsible part of the navbar -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link search-movies" href="{{ url_for('search') }}">Search for all movies</a>
+                        </li>
+                        <!-- Checks if the user is authenticated -->
+                        {% if user.is_authenticated %}
+                            <!-- Displays the user's username and a logout link -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('profile') }}">Hi, {{ user.username }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                            </li>
+                        {% else %}
+                            <!-- Provides links to sign up and login pages for unauthenticated users -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main content container with a top margin -->
+    <div class="container mt-3">
+        <!-- Retrieves and displays flashed messages, if any -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <!-- Iterates over each message and displays it with appropriate styling -->
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <!-- Button to close the alert -->
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Placeholder for content to be defined in child templates -->
+    {% block content %}{% endblock %}
+
+    <footer>
+        <!-- Footer content -->
+        <p>&copy; 2024 My App</p>
+    </footer>
+
+    <!-- Optional JavaScript dependencies for Bootstrap functionality -->
+    <!-- jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.js for tooltip and popover positioning -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6Hty5KVphtPhzWj9WO1clHTMGa3JDzwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <!-- Bootstrap's JavaScript plugins -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

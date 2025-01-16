@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- Declares the document type and version of HTML being used -->
+
+<html lang="en">
+<!-- Opens the HTML document and sets the language to English -->
+
+<head>
+    <!-- Metadata and links to external resources go here -->
+    <meta charset="UTF-8">
+    <!-- Sets the character encoding for the document to UTF-8 -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Ensures proper rendering and touch zooming on mobile devices -->
+
+    <title>Review Movie</title>
+    <!-- Sets the title of the webpage, displayed on the browser tab -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Links to an external CSS file for styling -->
+</head>
+
+<body class="review-movie-container">
+    <!-- Applies the 'review-movie-container' class for styling the body -->
+
+    <h2><strong>Review Movie: {{movie.title | upper  }}</strong></h2>
+    <!-- Main heading for the review page, with bold text -->
+
+    <!-- Form for submitting a movie review -->
+    <form method="POST" action="{{ url_for('review_movie', movie_id=movie.id) }}">
+        <!-- Specifies the form submission method and target URL -->
+
+        {{ form.hidden_tag() }}
+        <!-- Renders a hidden CSRF token for security (Flask-WTF) -->
+
+        <label for="rating"><strong>Rating:</strong></label>
+        <!-- Label for the rating input field, with bold text -->
+
+       
+        {{ form.rating(class_="user-info") }}
+        <!-- Numeric input for rating, constrained between 1 and 5, styled with 'user-info' class, and marked as required -->
+        {% if form.rating.errors %}
+            <small style="color: red;">{{ form.rating.errors[0] }}</small>
+        {% endif %}
+
+        <br>
+        <!-- Line break for spacing between form elements -->
+
+        <label for="review"><strong>Review:</strong></label>
+        <!-- Label for the review textarea, with bold text -->
+
+        {{ form.review_text(class_="user-info", rows=5) }}
+        <!-- Text area for the review content, with 5 rows, styled with 'user-info' class, and marked as required -->
+        {% if form.review_text.errors %}
+            <small style="color: red;">{{ form.review_text.errors[0] }}</small>
+        {% endif %}
+
+        <br>
+        <!-- Line break for spacing between form elements -->
+
+        {{ form.submit(class_="button") }}
+        <!-- Submit button for the form, styled with 'button' class -->
+    </form>
+
+
+
+    <!-- Display existing reviews -->
+    <h3>Reviews for: {{movie.title}}</h3>
+    {% if reviews %}
+        <ul>
+        {% for review in reviews %}
+            <li>
+                <strong>{{ review.user.username }}</strong>: 
+                <em>Rating: {{ review.rating }}/5</em><br>
+                {{ review.review_text }}
+                <button class="button delete-button"><a href="{{ url_for('delete_review', review_id=review.id) }}">Delete</a></button>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reviews yet. Be the first to leave one!</p>
+    {% endif %}
+
+
+
+</body>
+<!-- Closes the body of the document -->
+
+</html>
+<!-- Closes the HTML document -->

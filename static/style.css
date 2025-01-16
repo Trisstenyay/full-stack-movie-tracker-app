@@ -1,0 +1,137 @@
+/* Existing Signup and Login Container Styles */
+.signup-container,
+.login-container,
+.review-movie-container {
+    background-color: grey;
+}
+
+
+label {
+    display: block;
+}
+
+
+/* Styling for User Input Fields */
+.user-info {
+    background-color: transparent; /* auto background */
+    color: black; /* black text */
+    border: 2px solid #393d47; /* Border with specified color */
+    margin-bottom: 10px; /* Space between input fields */
+    outline: none;
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s ease; /* Smooth transition */
+    border-radius: 5px; /* Rounded corners */
+    padding: 8px; /* Inner spacing */
+}
+
+
+.search-control {
+    color: #393d47;
+}
+
+
+/* Custom Links Styling (for 'View all movies' and 'View my watchlist') */
+.view-all-movies,
+.view-my-watchlist {
+    display: inline-block;
+    margin-bottom: 10px;
+    background-color: #393d47; /* Custom background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 5px 10px; /* Padding */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+    border-radius: 5px; /* Rounded corners */
+}
+
+
+/* Base Button Styling for Buttons */
+.button {
+    background-color: #393d47; /* Custom background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 5px 10px; /* Padding */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+    border-radius: 5px; /* Rounded corners */
+}
+
+
+/* Button Hover Effect */
+.button:hover,
+.view-all-movies:hover,
+.view-my-watchlist:hover {
+    background-color: #2c2f36; /* Darker background on hover */
+}
+
+
+.delete-button:hover {
+    background-color: crimson;
+}
+
+
+/* Styling for Movies List */
+.movies-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 15px;
+}
+
+
+/* Movie Image Styling */
+.movie-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px; /* Rounded corners for images */
+}
+
+
+/* Styling for Links */
+a {
+    color: white;
+    text-decoration: none;
+}
+
+
+/* Hover Effect for Links */
+a:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* Hover Effect for Cards */
+.card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s;
+}
+
+
+/* Responsive Card Image Styling (adjusts for different screen sizes) */
+.card-img-top {
+    height: 400px;
+    object-fit: cover;
+}
+
+
+/* Title and Text Styles for Cards */
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+
+.card-text {
+    font-size: 0.9rem;
+}
+
+
+/* Card Footer Styling */
+.card-footer {
+    background-color: #f8f9fa;
+}
+
+

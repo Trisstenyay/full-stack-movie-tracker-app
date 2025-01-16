@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Title -->
+    <h1 class="text-center my-4">Movies List</h1>
+    <!-- Row to contain movie cards -->
+    <div class="row">
+        {% for movie in movies %}
+        <!-- Column for each movie card; adjusts based on screen size -->
+        <div class="col-md-4 mb-4">
+            <!-- Bootstrap card component -->
+            <div class="card h-100">
+                <!-- Movie poster image -->
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top" alt="{{ movie.title }} poster">
+                <!-- Card body containing movie details -->
+                <div class="card-body">
+                    <!-- Movie title -->
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <!-- Release date -->
+                    <p class="card-text"><small class="text-muted">Released: {{ movie.release_date }}</small></p>
+                    <!-- Movie overview/description -->
+                    <p class="card-text">{{ movie.overview }}</p>
+                </div>
+                <!-- Card footer containing actions -->
+                <div class="card-footer">
+                    <!-- Form to add movie to watchlist -->
+                    <form method="POST" action="{{ url_for('add_to_watchlist') }}" class="mb-2">
+                        <!-- Hidden inputs to pass movie data -->
+                        <input type="hidden" name="media_id" value="{{ movie.id }}">
+                        <input type="hidden" name="title" value="{{ movie.title }}">
+                        <input type="hidden" name="media_type" value="movie">
+                        <!-- Dropdown to select watch status -->
+                        <div class="form-group">
+                            <label for="status-{{ movie.id }}">Status:</label>
+                            <select name="status" id="status-{{ movie.id }}" class="form-control">
+                                <option value="watching">Watching</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <!-- Button to submit the form -->
+                        <button type="submit" class="btn btn-primary btn-block">Add to Watchlist</button>
+                    </form>
+                    <!-- Button to navigate to the review page for the movie -->
+                    <a href="{{ url_for('review_movie', movie_id=movie.id) }}" class="btn btn-secondary btn-block">Review Movie</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <!-- Message displayed if no movies are available -->
+    {% if not movies %}
+    <p class="text-center">No movies available to display.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+
+
