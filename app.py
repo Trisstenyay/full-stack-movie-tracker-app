@@ -1,34 +1,58 @@
 from flask import Flask, render_template, request, redirect, url_for, flash # Import Flask core items
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user # Import Flask-Login components for user authentication and session management
 import requests # Import the requests library to make HTTP requests
 from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy, an ORM (Object Relational Mapper) for database interactions
-from models import db, connect_db, User, Movie, Genre, TVShow, Watchlist, Watchlist, Review # Import the models from the models.py file to use in the Flask app
-from forms import ReviewForm
+from models import db, connect_db # First, import db and connect_db
+from models import User, Movie, Genre, TVShow, Watchlist, Review # Import the models from the models.py file to use in the Flask app 
+from forms import ReviewForm # Import the ReviewForm class from the forms module to handle form validation and submission
 from datetime import datetime # Import Python's built-in datetime module to handle date and time
 import os  # Import the os module to access environment variables
+from dotenv import load_dotenv # This package loads variables from your .env file into your environment.
+
+# Load variables from the .env file into the environment
+load_dotenv()
 
 app = Flask(__name__) # Initialize the Flask app Create an instance of the Flask class
 
-# Use the DATABASE_URL environment variable for the database URI
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "postgresql://trisstenyay:Dreamchaser4ever@localhost/movie_app_db")  # Fallback to default if not set
-app.config['SECRET_KEY'] = "Capstone"  # Secret key = "Capstone"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False # Tell flask not to track database modifications, saving resources
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"  # Replace with your login route name
+# Use FLASK_DATABASE_URL to connect Flask to the Supabase database
+# If FLASK_DATABASE_URL isn't available, fallback to PSQL_DATABASE_URL
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('FLASK_DATABASE_URI', os.getenv('LOCAL_DATABASE_URL'))
 
+app.config['SECRET_KEY'] = "Capstone"  # Secret key = "Capstone"
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False # Disable SQLAlchemy's event system for performance reasons (optional but common practice)
+
+# Initialize Flask-Login's LoginManager to handle user authentication
+login_manager = LoginManager() # Create an instance of LoginManager to manage user sessions
+
+# Configure the LoginManager to use the Flask app
+login_manager.init_app(app) # Bind the LoginManager to the Flask application instance
+
+login_manager.login_view = "login"  # Redirect to the 'login' route if the user is not authenticated
+
+# Define a user loader function to retrieve the User object based on the user_id
 @login_manager.user_loader
 def load_user(user_id):
-    """Given *user_id*, return the associated User object."""
-    return User.query.get(int(user_id))
+    """
+    Given a user_id, return the corresponding User object.
+    
+    Flask-Login will call this function to load the user based on the user ID stored in the session.
+    The user ID is typically stored as a session cookie, and this function fetches the User
+    object from the database for each request.
+    """
+    return User.query.get(int(user_id))  # Convert user_id to int and query the User model to fetch the user
 
 
-# Create tables in the database based on the models defined in models.py
+
+# Create tables in the database based on the models
 with app.app_context():
-    connect_db(app)
-    # db.metadata.clear()
-    # db.drop_all()
-    db.create_all()  # Ensures the table(s) are created in the database
+    connect_db(app)  # Connect the database to the Flask app
+    
+    # Optional: Uncomment the following lines for a clean reset
+    # db.drop_all()   # Drop all tables (use carefully, as this deletes data)
+    # db.metadata.clear()  # Clear all metadata (useful when debugging schema issues)
+    
+    #db.create_all()  # Create tables based on models if they do not already exist
 
 
 
