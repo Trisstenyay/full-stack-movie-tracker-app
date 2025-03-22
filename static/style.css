@@ -30,15 +30,24 @@ label {
 }
 
 
+.button-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20vh;
+    text-align: center;
+}
+
+
 /* Custom Links Styling (for 'View all movies' and 'View my watchlist') */
 .view-all-movies,
 .view-my-watchlist {
     display: inline-block;
-    margin-bottom: 10px;
+    margin: 10px;
     background-color: #393d47; /* Custom background */
     color: white; /* White text */
     border: none; /* No border */
-    padding: 5px 10px; /* Padding */
+    padding: 10px 10px; /* Padding */
     font-size: 16px; /* Font size */
     cursor: pointer; /* Pointer cursor on hover */
     transition: background-color 0.3s ease; /* Smooth transition */
@@ -132,6 +141,8 @@ a:hover {
 /* Card Footer Styling */
 .card-footer {
     background-color: #f8f9fa;
+    
 }
+
 
 

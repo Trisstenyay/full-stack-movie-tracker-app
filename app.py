@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash # Import Flask core items
+from flask import Flask, json, jsonify, render_template, request, redirect, url_for, flash # Import Flask core items
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user # Import Flask-Login components for user authentication and session management
 import requests # Import the requests library to make HTTP requests
 from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy, an ORM (Object Relational Mapper) for database interactions
@@ -8,60 +8,54 @@ from forms import ReviewForm # Import the ReviewForm class from the forms module
 from datetime import datetime # Import Python's built-in datetime module to handle date and time
 import os  # Import the os module to access environment variables
 from dotenv import load_dotenv # This package loads variables from your .env file into your environment.
+from sqlalchemy import text
 
-# Load variables from the .env file into the environment
+# Step 1: Initialize Flask app
+app = Flask(__name__)  # Initialize the Flask app
+
+# Step 2: Load environment variables from the .env file
 load_dotenv()
 
-app = Flask(__name__) # Initialize the Flask app Create an instance of the Flask class
-
-# Use FLASK_DATABASE_URL to connect Flask to the Supabase database
-# If FLASK_DATABASE_URL isn't available, fallback to PSQL_DATABASE_URL
+# Step 3: Set up the database URI and other configurations
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('FLASK_DATABASE_URI', os.getenv('LOCAL_DATABASE_URL'))
+app.config['SECRET_KEY'] = "Capstone"  # Secret key
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable modification tracking
 
-app.config['SECRET_KEY'] = "Capstone"  # Secret key = "Capstone"
+# Step 4: ✅ Connect the database (from models.py where `db` is initialized)
+connect_db(app)  # This automatically calls db.init_app(app)
 
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False # Disable SQLAlchemy's event system for performance reasons (optional but common practice)
+# Step 5: Get the Bearer token from the .env file
+TMDB_BEARER_TOKEN = os.getenv("TMDB_BEARER_TOKEN")
 
-# Initialize Flask-Login's LoginManager to handle user authentication
-login_manager = LoginManager() # Create an instance of LoginManager to manage user sessions
+# Step 6: Get the API key from .env
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
-# Configure the LoginManager to use the Flask app
-login_manager.init_app(app) # Bind the LoginManager to the Flask application instance
+# Step 7: Set up and initialize Flask-Login
+login_manager = LoginManager()  # Create an instance of LoginManager
+login_manager.init_app(app)  # Bind LoginManager to the Flask app
+login_manager.login_view = "login"  # Redirect to the 'login' route if the user isn't authenticated
 
-login_manager.login_view = "login"  # Redirect to the 'login' route if the user is not authenticated
-
-# Define a user loader function to retrieve the User object based on the user_id
+# Step 8: Define a user loader function for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    """
-    Given a user_id, return the corresponding User object.
-    
-    Flask-Login will call this function to load the user based on the user ID stored in the session.
-    The user ID is typically stored as a session cookie, and this function fetches the User
-    object from the database for each request.
-    """
-    return User.query.get(int(user_id))  # Convert user_id to int and query the User model to fetch the user
+    """Return the User object based on user_id stored in the session."""
+    return User.query.get(int(user_id))  # Query the User model
 
-
-
-# Create tables in the database based on the models
-with app.app_context():
-    connect_db(app)  # Connect the database to the Flask app
-    
-    # Optional: Uncomment the following lines for a clean reset
-    # db.drop_all()   # Drop all tables (use carefully, as this deletes data)
-    # db.metadata.clear()  # Clear all metadata (useful when debugging schema issues)
-    
-    #db.create_all()  # Create tables based on models if they do not already exist
-
-
-
-# Authentication headers and API_KEY = Bearer token
+# Step 9: Setup API headers for external requests (e.g., TMDB)
 headers = {
-    "accept": "application/json", # Specify the type of data we accept (JSON)
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDkzODdhZGNkMTMyZGMzZTc4NzU2MWRmNzBlNjZiMyIsIm5iZiI6MTczNDYzMTk3OC4wMTQwMDAyLCJzdWIiOiI2NzY0NjIyYThkYzA0NmI5MTVhNGZjNDMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.1Qp7p_YrH--rWMUizGo8ywOULxwoMebhZo5NBXXFiXk" # Added my API token
+    "accept": "application/json",
+    "Authorization": f"Bearer {TMDB_BEARER_TOKEN}"
 }
 
+# Step 10: Create tables manually based on the models (using app context)
+with app.app_context():
+    # db.drop_all()
+    # db.create_all()  # Create tables in the database based on the models
+    # print("Tables created successfully!")
+     pass
+
+if __name__ == "__main__":
+    app.run(debug=True)  # Run the Flask app in debug mode
 
 
 
@@ -166,82 +160,104 @@ def profile():
 
 
 
+MOVIE_API_URL = "https://api.themoviedb.org/3/discover/movie"
+
 @app.route("/fetch_movies", methods=["GET"])
 def fetch_movies():
     """
-    Fetches movies from the TMDb API and stores them in the database.
-    The API request retrieves a list of movies, and each movie is added to the database if it doesn't already exist.
+    Fetches movies from The Movie Database (TMDb) API and stores them in the database.
+    Avoids inserting duplicates and ensures every movie has a valid overview.
     """
-    api_url_movies = "https://api.themoviedb.org/3/discover/movie"
+    tmdb_api_key = os.getenv("TMDB_API_KEY")  # Load API key from environment variables
 
-    try:
-        response_movies = requests.get(api_url_movies, headers=headers)
+    url = f"{MOVIE_API_URL}?api_key={tmdb_api_key}"  # Construct API request URL
+    response = requests.get(url)  # Send GET request to TMDb API
 
-        if response_movies.status_code == 200:
-            data_movies = response_movies.json()
-            movies = data_movies["results"]
+    if response.status_code == 200:  # Check if the request was successful
+        movie_data = response.json().get('results', [])  # Extract movie results from API response
+        
+        print("Fetched movies:", json.dumps(movie_data, indent=4))  # Log fetched movies for debugging
 
-            for m in movies:
-                # Avoid adding duplicates
-                existing_movie = Movie.query.filter_by(tmdb_id=m.get("id")).first()
-                if not existing_movie:
-                    genre_id = m["genre_ids"][0] if m.get("genre_ids") else None
-                    genre = None
-                    if genre_id:
-                        genre = Genre.query.filter_by(id=genre_id).first()
-                        if not genre:
-                            genre = Genre(id=genre_id, name="Unknown")
-                            db.session.add(genre)
-                            db.session.commit()
+        tmdb_ids = []  # List to track inserted movie IDs
 
-                    movie = Movie(
-                        tmdb_id=m.get("id"),
-                        title=m.get("title", "Untitled"),
-                        release_date=m.get("release_date"),
-                        overview=m.get("overview", "No overview available"),
-                        poster_path=m.get("poster_path"),
-                        genre_id=genre.id if genre else None
-                    )
-                    db.session.add(movie)
+        for movie in movie_data:
+            tmdb_id = movie.get("id")  # Get the unique TMDb movie ID
 
-            db.session.commit()
+            # Check if the movie already exists in the database
+            if not Movie.query.filter_by(tmdb_id=tmdb_id).first():
+                genre_ids = movie.get("genre_ids", [])  # Get list of genre IDs
+                movie_genres = []  # Store Genre objects
 
-            return {"message": "Movies successfully fetched and saved."}, 200
-        else:
-            return {"error": "Failed to fetch movies from API."}, response_movies.status_code
+                # Handle missing overview by setting a default value
+                if not movie.get("overview"):
+                    movie["overview"] = "No description available."
 
-    except Exception as e:
-        return {"error": f"An error occurred: {str(e)}"}, 500
+                # Find and associate genres with the movie
+                for genre_id in genre_ids:
+                    genre = Genre.query.filter_by(id=genre_id).first()
+                    if genre:
+                        movie_genres.append(genre)
 
+                # Create a new Movie object with the fetched details
+                new_movie = Movie(
+                    tmdb_id=tmdb_id,
+                    title=movie.get("title"),
+                    release_date=movie.get("release_date"),
+                    overview=movie.get("overview"),
+                    poster_path=movie.get("poster_path"),
+                    genre_id=movie_genres[0].id if movie_genres else None  # Assign first genre if available
+                )
 
+                db.session.add(new_movie)  # Add new movie to session
+                db.session.commit()  # Commit the movie to the database
+
+                tmdb_ids.append(tmdb_id)  # Keep track of inserted movie IDs
+                
+                # Log the inserted movie and its overview
+                print(f"Movie: {movie['title']} - Overview: {movie['overview']}")
+
+        return jsonify({"message": "Movies fetched and stored successfully!"})
+
+    # Handle API request failure
+    return jsonify({"error": "Failed to fetch movies", "details": response.text}), 500
+
+    
 
 
 
 @app.route("/movies", methods=["GET"])
 def display_movies():
     """
-    Displays all movies stored in the database. Retrieves the list of movies and passes them to the template.
+    Fetches all movies stored in the database and passes them to the template.
+    Ensures movies are retrieved correctly and handles missing overviews.
     """
     try:
+        # Fetch all movies from the database
         movies = Movie.query.all()
 
+        # Log the total number of movies found for debugging
+        print(f"Total Movies Found: {len(movies)}")
+
+        # Construct a list of movie dictionaries for rendering in the template
         movie_list = [
             {
+                "id": movie.id,
                 "title": movie.title,
                 "release_date": movie.release_date,
                 "poster_path": movie.poster_path,
-                "overview": movie.overview,
-                "id": movie.id,
-                "reviews": movie.reviews
+                "overview": movie.overview if movie.overview else "No description available.",  # Handle missing overviews
+                "reviews": movie.reviews  # Assuming this is a relationship or field
             }
             for movie in movies
         ]
 
-        return render_template('movies.html', movies=movie_list, user=current_user)
+        # Render the movies.html template and pass the movie data along with the current user
+        return render_template("movies.html", movies=movie_list, user=current_user)
 
     except Exception as e:
+        # Log any errors that occur during movie retrieval
         print(f"Error fetching movies: {e}")
-        return {"error": "An error occurred while retrieving movies."}, 500
+        return jsonify({"error": "An error occurred while retrieving movies."}), 500
 
 
 
@@ -254,51 +270,43 @@ def fetch_genres():
     Each genre fetched from the API is added to the database if it doesn't already exist.
     """
     api_url_genres = "https://api.themoviedb.org/3/genre/movie/list"
+    headers = {"Authorization": "Bearer " + TMDB_BEARER_TOKEN}
 
     try:
+        # Send a GET request to the TMDb API to fetch genres
         response_genres = requests.get(api_url_genres, headers=headers)
 
         if response_genres.status_code == 200:
-            data_genres = response_genres.json()
-            genres = data_genres["genres"]
+            # If the response is successful, process the genres
+            data_genres = response_genres.json()  # Parse the JSON response
+            genres = data_genres["genres"]  # Extract the genres list
 
             for g in genres:
+                # Check if the genre is already in the database
                 existing_genre = Genre.query.filter_by(id=g["id"]).first()
                 if not existing_genre:
+                    # If the genre doesn't exist, add it to the database
                     genre = Genre(id=g["id"], name=g["name"])
                     db.session.add(genre)
                 else:
+                    # If the genre exists, update the name
                     existing_genre.name = g["name"]
 
-            db.session.commit()
+            db.session.commit()  # Commit the changes to the database
 
+            # Return a success message
             return {"message": "Genres fetched and stored successfully."}, 200
         else:
+            # If the API request fails, return an error message
             return {"error": "Failed to fetch genres from the API."}, 500
 
     except requests.exceptions.RequestException as e:
+        # Handle any errors with the API request
         print(f"Request failed: {e}")
         return {"error": "An error occurred while connecting to the API."}, 500
 
-
-
-
-
-@app.route("/display_genres", methods=["GET"])
-def display_genres():
-    """
-    Displays all genres stored in the database. Retrieves the genres and renders them in the template.
-    """
-    try:
-        genres = Genre.query.all()
-
-        genre_list = [{"id": genre.id, "name": genre.name} for genre in genres]
-
-        return render_template("genres.html", genres=genre_list, user=current_user)
-
-    except Exception as e:
-        print(f"Error fetching genres: {e}")
-        return {"error": "An error occurred while retrieving genres."}, 500
+if __name__ == "__main__":
+    app.run(debug=True)  # Run the app with debugging enabled
 
 
 

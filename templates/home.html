@@ -9,7 +9,7 @@
 
     {% if user.is_authenticated %}
     {# Check if the user is logged in; display the following links only for authenticated users #}
-
+    <div class="button-container">
         <a href="{{ url_for('display_movies') }}" class="view-all-movies">View all movies</a>
         {# Link to the 'display_movies' route; 'view-all-movies' is a CSS class for styling #}
 
@@ -18,7 +18,7 @@
 
         <a href="{{ url_for('display_watchlist') }}" class="view-my-watchlist">View my watchlist</a>
         {# Link to the 'display_watchlist' route; 'view-my-watchlist' is a CSS class for styling #}
-
+    </div>
     {% endif %}
     {# End of the authenticated user check #}
 

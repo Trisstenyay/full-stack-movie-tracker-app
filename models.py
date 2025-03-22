@@ -8,11 +8,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 def connect_db(app):
-    """Connect this database to provided Flask app. You should call this in your Flask app.
-    """
-
-    db.app = app
+    """Connect this database to the provided Flask app."""
     db.init_app(app)
+
+
 
 
 
@@ -57,8 +56,6 @@ class User(db.Model, UserMixin):
 
 
 
-# Movie Model
-# It inherits from db.model, which means it's a database model
 class Movie(db.Model):
     """
     Represents a movie in the application.
@@ -74,33 +71,32 @@ class Movie(db.Model):
         watchlist_items (list[Watchlist]): List of watchlist entries associated with the movie.
         reviews (list[Review]): List of reviews associated with the movie.
     """
-
     id = db.Column(db.Integer, primary_key=True)  # Unique ID for each movie
-    tmdb_id = db.Column(db.Integer, unique=True, nullable=False) # Unique TMDb ID for identifying the movie
+    tmdb_id = db.Column(db.Integer, unique=True, nullable=False)  # Unique TMDb ID for identifying the movie
     title = db.Column(db.String(100), nullable=False)  # Title of the movie
     release_date = db.Column(db.String(50), nullable=True)  # Release date of the movie
     overview = db.Column(db.Text, nullable=True)  # Overview or description of the movie
     poster_path = db.Column(db.String(255), nullable=True)  # URL path to the movie's poster image
-    genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)  # Foreign key to associate with Genre
+    genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)  # Foreign key to genre table
 
-   
-
+    
+    
+    # Relationship with Genre
+    genre = db.relationship('Genre', back_populates='movie_list')
+    
     # Relationship with User (watchlist, ratings, reviews)
-    # A movie can appear in multiple users' watchlists
     watchlist_items = db.relationship('Watchlist', backref='movie', lazy=True)  # Allows access to related watchlist items
 
     # Relationship with Review
     reviews = db.relationship('Review', back_populates='movie')
 
     def __repr__(self):
-        return f"<Movie {self.title} ({self.release_date}) {self.poster_path}>" # String representation for debugging
+        return f"<Movie {self.title} ({self.release_date}) {self.poster_path}>"
 
 
 
 
 
-# Genre Model
-# it inherits from db.model, which means it's a database model
 class Genre(db.Model):
     """
     Represents a genre of movies.
@@ -110,17 +106,15 @@ class Genre(db.Model):
         name (str): Name of the genre.
         movies (list[Movie]): List of movies associated with this genre.
     """
-
     id = db.Column(db.Integer, primary_key=True)  # Unique ID for each genre
     name = db.Column(db.String, nullable=False, default="Unknown")  # Name of the genre with a default value
 
-    # Relationship with Movie
-    # A genre can have multiple associated movies.
-    movies = db.relationship('Movie', backref='genre', lazy=True)  # Enables `genre.movies` to access all related movies
+    # Relationship to Movie (One-to-Many relationship: One genre can have many movies)
+    movie_list = db.relationship('Movie', back_populates='genre', lazy=True)
 
-    
     def __repr__(self):
         return f"<Genre {self.name}>"
+
 
 
 

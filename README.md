@@ -4,8 +4,9 @@ This project aims to create a dynamic, user-friendly website that serves as a pe
 
 I listed basic features like Sign-up, Log-in, Log-out, View all movies, Search all movies, add to watchlist, and reviews.
 
-I used HTML, CSS, Javascript, Python, Flask, Postgresql, SQLAlchemy, Jinja
+I used HTML, CSS, Javascript, Python, Flask, Postgresql, SQLAlchemy, and Jinja
 
-### API used:[TMDB](https://www.themoviedb.org/)
+### API used:[TMDB](https://www.themoviedb.org/) (Main Website)
+
 
 
