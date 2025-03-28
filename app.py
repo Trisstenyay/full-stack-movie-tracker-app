@@ -48,11 +48,11 @@ headers = {
 }
 
 # Step 10: Create tables manually based on the models (using app context)
-with app.app_context():
-    # db.drop_all()
-    # db.create_all()  # Create tables in the database based on the models
-    # print("Tables created successfully!")
-     pass
+# with app.app_context():
+#     # db.drop_all()
+#     # db.create_all()  # Create tables in the database based on the models
+#     # print("Tables created successfully!")
+#      pass
 
 if __name__ == "__main__":
     app.run(debug=True)  # Run the Flask app in debug mode
