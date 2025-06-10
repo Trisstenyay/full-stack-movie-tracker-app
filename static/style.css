@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* Global dark theme setup */
 body {
   background-color: #0d1117;   /* Onyx / GitHub-style dark */
@@ -52,22 +51,11 @@ body {
 
 
 /* --- Labels --- */
-=======
-/* Existing Signup and Login Container Styles */
-.signup-container,
-.login-container,
-.review-movie-container {
-    background-color: grey;
-}
-
-
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 label {
     display: block;
 }
 
 
-<<<<<<< HEAD
 /* --- Input Field Styling --- */
 .user-info {
     background-color: #0d1117;
@@ -195,75 +183,10 @@ label {
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
-=======
-/* Styling for User Input Fields */
-.user-info {
-    background-color: transparent; /* auto background */
-    color: black; /* black text */
-    border: 2px solid #393d47; /* Border with specified color */
-    margin-bottom: 10px; /* Space between input fields */
-    outline: none;
-    font-size: 16px; /* Font size */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    border-radius: 5px; /* Rounded corners */
-    padding: 8px; /* Inner spacing */
-}
-
-
-.search-control {
-    color: #393d47;
-}
-
-
-.button-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 20vh;
-    text-align: center;
-}
-
-
-/* Custom Links Styling (for 'View all movies' and 'View my watchlist') */
-.view-all-movies,
-.view-my-watchlist {
-    display: inline-block;
-    margin: 10px;
-    background-color: #393d47; /* Custom background */
-    color: white; /* White text */
-    border: none; /* No border */
-    padding: 10px 10px; /* Padding */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    border-radius: 5px; /* Rounded corners */
-}
-
-
-/* Base Button Styling for Buttons */
-.button {
-    background-color: #393d47; /* Custom background */
-    color: white; /* White text */
-    border: none; /* No border */
-    padding: 5px 10px; /* Padding */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    border-radius: 5px; /* Rounded corners */
-}
-
-
-/* Button Hover Effect */
-.button:hover,
-.view-all-movies:hover,
-.view-my-watchlist:hover {
-    background-color: #2c2f36; /* Darker background on hover */
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 }
 
 
 .delete-button:hover {
-<<<<<<< HEAD
   background-color: #ff1a1a;
   box-shadow: 0 0 12px rgba(255, 77, 77, 1);
   transform: scale(1.05);
@@ -307,13 +230,6 @@ label {
 
 
 /* --- Movies List Layout --- */
-=======
-    background-color: crimson;
-}
-
-
-/* Styling for Movies List */
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 .movies-list {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -322,7 +238,6 @@ label {
 }
 
 
-<<<<<<< HEAD
 /* --- Movie Images --- */
 .movie-item img {
     width: 100%;
@@ -332,34 +247,18 @@ label {
 
 
 /* --- Link Styling --- */
-=======
-/* Movie Image Styling */
-.movie-item img {
-    width: 100%;
-    height: auto;
-    border-radius: 5px; /* Rounded corners for images */
-}
-
-
-/* Styling for Links */
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 a {
     color: white;
     text-decoration: none;
 }
 
 
-<<<<<<< HEAD
-=======
-/* Hover Effect for Links */
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 a:hover {
     text-decoration: none;
     color: inherit;
 }
 
 
-<<<<<<< HEAD
 .card {
   background-color: #0d1117;  /* onyx look */
   color: white;
@@ -386,23 +285,6 @@ a:hover {
 
 
 /* --- Card Text --- */
-=======
-/* Hover Effect for Cards */
-.card:hover {
-    transform: translateY(-5px);
-    transition: transform 0.2s;
-}
-
-
-/* Responsive Card Image Styling (adjusts for different screen sizes) */
-.card-img-top {
-    height: 400px;
-    object-fit: cover;
-}
-
-
-/* Title and Text Styles for Cards */
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 .card-title {
     font-size: 1.25rem;
     font-weight: bold;
@@ -414,7 +296,6 @@ a:hover {
 }
 
 
-<<<<<<< HEAD
 .search-poster-img {
   width: 100%;
   height: 400px;              
@@ -492,13 +373,4 @@ a:hover {
   width: 100%;
 }
 
-=======
-/* Card Footer Styling */
-.card-footer {
-    background-color: #f8f9fa;
-    
-}
-
-
->>>>>>> 9b28946bd83546dcdaeab7cac31465326c8d58fa
 
