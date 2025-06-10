@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Movie Tracker{% endblock %}
+
+{% block content %}
+
+<!-- Background Video -->
+<video autoplay muted loop id="bg-video">
+  <source src="{{ url_for('static', filename='videos/aqua-tunnel.mp4') }}" type="video/mp4">
+</video>
+
+<div class="container text-center mt-5">
+  <h1 class="text-glow mb-4">Welcome to My Movie Tracker App</h1>
+
+  <div class="subtitle-container text-glow">
+    <span>Track your favorite movies...</span>
+    <span>Add them to your watchlist...</span>
+    <span>Write reviews & share with friends!</span>
+  </div>
+</div>
+{% endblock %}

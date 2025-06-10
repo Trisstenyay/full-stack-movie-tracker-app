@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash # Import Flask core items
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash # Import Flask core items
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user # Import Flask-Login components for user authentication and session management
+import traceback
 import requests # Import the requests library to make HTTP requests
 from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy, an ORM (Object Relational Mapper) for database interactions
 from models import db, connect_db # First, import db and connect_db
-from models import User, Movie, Genre, TVShow, Watchlist, Review # Import the models from the models.py file to use in the Flask app 
+from models import User, Movie, Genre, Watchlist, Review # Import the models from the models.py file to use in the Flask app 
 from forms import ReviewForm # Import the ReviewForm class from the forms module to handle form validation and submission
 from datetime import datetime # Import Python's built-in datetime module to handle date and time
 import os  # Import the os module to access environment variables
@@ -14,11 +15,11 @@ load_dotenv()
 
 app = Flask(__name__) # Initialize the Flask app Create an instance of the Flask class
 
-# Use FLASK_DATABASE_URL to connect Flask to the Supabase database
-# If FLASK_DATABASE_URL isn't available, fallback to PSQL_DATABASE_URL
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('FLASK_DATABASE_URI', os.getenv('LOCAL_DATABASE_URL'))
 
-app.config['SECRET_KEY'] = "Capstone"  # Secret key = "Capstone"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('LOCAL_DATABASE_URL')
+
+app.config['SECRET_KEY'] = "Capstone"  
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False # Disable SQLAlchemy's event system for performance reasons (optional but common practice)
 
@@ -46,13 +47,10 @@ def load_user(user_id):
 
 # Create tables in the database based on the models
 with app.app_context():
-    connect_db(app)  # Connect the database to the Flask app
-    
-    # Optional: Uncomment the following lines for a clean reset
-    # db.drop_all()   # Drop all tables (use carefully, as this deletes data)
-    # db.metadata.clear()  # Clear all metadata (useful when debugging schema issues)
-    
-    #db.create_all()  # Create tables based on models if they do not already exist
+    connect_db(app)
+    # db.drop_all()      # ✅ Drop all tables (be careful: this deletes all data)
+    # db.create_all()    # ✅ Recreate all tables with new schema
+
 
 
 
@@ -76,10 +74,8 @@ def home():
         # Fetch user-specific data if logged in
         return render_template("home.html", user=current_user)
     else:
-        # Render home page for non-authenticated users
-        return render_template("home.html", user=current_user)
-
-
+        # Render landing page for non-authenticated users
+        return render_template("landing.html", user=current_user)
 
 
 
@@ -111,8 +107,6 @@ def signup():
 
 
 
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """
@@ -138,8 +132,6 @@ def login():
 
 
 
-
-
 @app.route("/logout")
 @login_required
 def logout():
@@ -149,8 +141,6 @@ def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for('home'))
-
-
 
 
 
@@ -164,15 +154,13 @@ def profile():
 
 
 
-
-
 @app.route("/fetch_movies", methods=["GET"])
 def fetch_movies():
     """
     Fetches movies from the TMDb API and stores them in the database.
     The API request retrieves a list of movies, and each movie is added to the database if it doesn't already exist.
     """
-    api_url_movies = "https://api.themoviedb.org/3/discover/movie"
+    api_url_movies = "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1"
 
     try:
         response_movies = requests.get(api_url_movies, headers=headers)
@@ -200,7 +188,8 @@ def fetch_movies():
                         release_date=m.get("release_date"),
                         overview=m.get("overview", "No overview available"),
                         poster_path=m.get("poster_path"),
-                        genre_id=genre.id if genre else None
+                        genre_id=genre.id if genre else None,
+                        is_popular=False
                     )
                     db.session.add(movie)
 
@@ -214,16 +203,25 @@ def fetch_movies():
         return {"error": f"An error occurred: {str(e)}"}, 500
 
 
-
+@app.route("/fetch-movies")
+def call_fetch_movies():
+    return fetch_movies()
 
 
 @app.route("/movies", methods=["GET"])
+@login_required
 def display_movies():
     """
-    Displays all movies stored in the database. Retrieves the list of movies and passes them to the template.
+    Displays all movies stored in the database (non-popular).
+    If none exist yet, fetches them from TMDB first.
     """
     try:
-        movies = Movie.query.all()
+        # If no non-popular movies exist, fetch them
+        if Movie.query.filter_by(is_popular=False).count() == 0:
+            fetch_movies()  # this inserts is_popular=False movies into the DB
+
+        # Query non-popular movies
+        movies = Movie.query.filter_by(is_popular=False).all()
 
         movie_list = [
             {
@@ -232,17 +230,17 @@ def display_movies():
                 "poster_path": movie.poster_path,
                 "overview": movie.overview,
                 "id": movie.id,
-                "reviews": movie.reviews
+                "tmdb_id": movie.tmdb_id,
+                "reviews": movie.reviews,
             }
             for movie in movies
         ]
 
-        return render_template('movies.html', movies=movie_list, user=current_user)
+        return render_template("movies.html", movies=movie_list, user=current_user)
 
     except Exception as e:
         print(f"Error fetching movies: {e}")
         return {"error": "An error occurred while retrieving movies."}, 500
-
 
 
 
@@ -282,8 +280,6 @@ def fetch_genres():
 
 
 
-
-
 @app.route("/display_genres", methods=["GET"])
 def display_genres():
     """
@@ -302,106 +298,180 @@ def display_genres():
 
 
 
-
-
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["GET"])
+@login_required
 def search():
     """
-    Search for movies or TV shows based on the provided query and media type.
-    The query parameter is used for searching, and media_type determines whether to search for a movie or TV show.
+    Search for movies based on the query.
+    Returns a list of movie dicts like in /movies for consistency.
     """
     query = request.args.get("query", "")
-    media_type = request.args.get("type", "movie")
-
+    
     if not query:
         return render_template("search.html", results=[], query=query, user=current_user)
 
     search_pattern = f"%{query}%"
-    results = []
+    matched_movies = db.session.execute(
+        db.select(Movie).filter(Movie.title.ilike(search_pattern))
+    ).scalars().all()
 
-    if media_type == "movie":
-        results = db.session.execute(
-            db.select(Movie).filter(Movie.title.ilike(search_pattern))
-        ).scalars().all()
-
-    elif media_type == "tv":
-        results = db.session.execute(
-            db.select(TVShow).filter(TVShow.title.ilike(search_pattern))
-        ).scalars().all()
+    results = [
+        {
+            "title": movie.title,
+            "release_date": movie.release_date,
+            "poster_path": movie.poster_path,
+            "overview": movie.overview,
+            "id": movie.id,
+            "reviews": movie.reviews
+        }
+        for movie in matched_movies
+    ]
 
     return render_template("search.html", results=results, query=query, user=current_user)
 
 
 
+def fetch_popular_movies():
+    url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    return data.get("results", [])
+
+
+
+@app.route("/popular")
+@login_required
+def show_popular_movies():
+    """Fetch and store popular movies from TMDB, then show only is_popular=True."""
+    url = "https://api.themoviedb.org/3/movie/popular"
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        movies = data.get("results", [])
+
+        for m in movies:
+            tmdb_id = m.get("id")
+
+            # Check if this movie already exists in the DB
+            existing = Movie.query.filter_by(tmdb_id=tmdb_id).first()
+            if not existing:
+                movie = Movie(
+                    tmdb_id=tmdb_id,
+                    title=m.get("title", "Untitled"),
+                    release_date=m.get("release_date"),
+                    overview=m.get("overview", "No overview available"),
+                    poster_path=m.get("poster_path"),
+                    is_popular=True
+                )
+                db.session.add(movie)
+
+        db.session.commit()
+
+    # Now show only movies marked as popular
+    popular_movies = Movie.query.filter_by(is_popular=True).all()
+    return render_template("popular.html", movies=popular_movies, user=current_user)
+
 
 
 @app.route("/add_to_watchlist", methods=["POST"])
+@login_required
 def add_to_watchlist():
-    """
-    Adds a movie or TV show to the watchlist. The media_id, title, media_type, and status are taken from the form,
-    and the item is added to the Watchlist table in the database.
-    """
-    if request.method == "POST":
-        media_id = request.form.get("media_id")
-        title = request.form.get("title")
-        media_type = request.form.get("media_type")
-        status = request.form.get("status")
+    # 1. Grab and validate tmdb_id
+    tmdb_id = request.form.get("tmdb_id")
+    if not tmdb_id or not tmdb_id.isdigit():
+        flash("Invalid movie ID. Please try again.", "danger")
+        return redirect(url_for("watchlist"))
 
-        if not media_id or not title or not media_type or not status:
-            missing_fields = []
-            if not media_id:
-                missing_fields.append('Media ID')
-            if not title:
-                missing_fields.append('Title')
-            if not media_type:
-                missing_fields.append('Media Type')
-            if not status:
-                missing_fields.append('Status')
-            missing_fields_str = ', '.join(missing_fields)
-            return f"<h1>Missing required information: {missing_fields_str}</h1>", 400
+    tmdb_id = int(tmdb_id)
 
-        watchlist_item = Watchlist(
-            user_id=current_user.id,
-            movie_id=media_id,
-            status=status
+    # 2. Grab all other fields from the form
+    title = request.form.get("title")
+    poster_path = request.form.get("poster_path")
+    overview = request.form.get("overview")
+    release_date = request.form.get("release_date")
+    status = request.form.get("status")
+
+    # 3. Check if the movie already exists in the database
+    movie = Movie.query.filter_by(tmdb_id=tmdb_id).first()
+
+    # 4. If not in the DB yet, create and add it
+    if not movie:
+        movie = Movie(
+            tmdb_id=tmdb_id,
+            title=title,
+            poster_path=poster_path,
+            overview=overview,
+            release_date=release_date,
+            is_popular=request.referrer and "/popular" in request.referrer
         )
-
-        db.session.add(watchlist_item)
+        db.session.add(movie)
         db.session.commit()
 
-        flash("Added to your watchlist.", "success")
-        return redirect(url_for('home'))
+    # 5. Check if it's already in the user's watchlist
+    existing = Watchlist.query.filter_by(user_id=current_user.id, movie_id=movie.id).first()
+    if existing:
+        flash("Movie is already in your watchlist.", "info")
+    else:
+        watchlist_item = Watchlist(
+            user_id=current_user.id,
+            movie_id=movie.id,
+            status=status
+        )
+        db.session.add(watchlist_item)
+        db.session.commit()
+        flash(f"{title} added to your watchlist!", "success")
+
+    return redirect(url_for("watchlist"))
 
 
 
 
-
-@app.route("/watchlist", methods=["GET"])
-def display_watchlist():
-    """
-    Displays all movies in the user's watchlist. Retrieves movies based on the watchlist and renders them in the template.
-    """
+@app.route("/watchlist")
+@login_required
+def watchlist():
     try:
-        watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
-        movie_ids = [w.movie_id for w in watchlist]
-        movies = Movie.query.filter(Movie.id.in_(movie_ids)).all()
+        # Get all Watchlist entries for the current user
+        watchlist_items = Watchlist.query.filter_by(user_id=current_user.id).all()
 
-        return render_template('watchlist.html', movies=movies, user=current_user)
+        # Get associated Movie objects using the relationship you added
+        movies = [item.movie for item in watchlist_items]
+
+        return render_template("watchlist.html", movies=movies, user=current_user)
 
     except Exception as e:
-        print(f"Error fetching movies: {e}")
-        return {"error": "An error occurred while retrieving movies."}, 500
-    
-        return redirect(url_for('home'))
+        print("⚠️ WATCHLIST ERROR:", e)
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
 
 
+
+@app.route("/update_status/<int:movie_id>", methods=["POST"])
+@login_required
+def update_status(movie_id):
+    try:
+        new_status = request.form.get("status")
+        watchlist_item = Watchlist.query.filter_by(user_id=current_user.id, movie_id=movie_id).first()
+
+        if not watchlist_item:
+            flash("Movie not found in your watchlist.", "danger")
+            return redirect(url_for("watchlist"))
+
+        watchlist_item.status = new_status
+        db.session.commit()
+        flash("Status updated successfully!", "success")
+    except Exception as e:
+        print(f"Error updating status: {e}")
+        flash("Error updating status.", "danger")
+
+    return redirect(url_for("watchlist"))
 
 
 
 @app.route("/remove_from_watchlist/<int:movie_id>", methods=["POST"])
 def remove_from_watchlist(movie_id):
     """
-    Removes a movie or TV show from the user's watchlist.
+    Removes a movie from the user's watchlist.
     """
     try:
         # Find the watchlist item for the current user and movie
@@ -418,9 +488,7 @@ def remove_from_watchlist(movie_id):
         print(f"Error removing movie from watchlist: {e}")
         flash("An error occurred while removing the movie.", "danger")
 
-    return redirect(url_for('display_watchlist'))
-
-
+    return redirect(url_for('watchlist'))
 
 
 
@@ -452,9 +520,7 @@ def review_movie(movie_id):
 
 
 
-
-
-@app.route('/review/<int:review_id>/delete', methods=['GET'])
+@app.route('/review/<int:review_id>/delete', methods=['POST'])
 @login_required
 def delete_review(review_id):
     """

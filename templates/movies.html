@@ -2,8 +2,22 @@
 
 {% block content %}
 <div class="container">
+
+    <!-- Background Video for Movies Page -->
+    <video autoplay muted loop id="bg-video">
+        <source src="{{ url_for('static', filename='videos/movie-lights.mp4') }}" type="video/mp4">
+    </video>
+
     <!-- Page Title -->
     <h1 class="text-center my-4">Movies List</h1>
+
+    <!-- Back to Home Button -->
+    <div class="d-flex justify-content-start mt-3 mb-3">
+        <a href="{{ url_for('home') }}" class="btn btn-aqua-glow">
+        ← Back to Home
+        </a>
+    </div>
+
     <!-- Row to contain movie cards -->
     <div class="row">
         {% for movie in movies %}
@@ -24,25 +38,26 @@
                 </div>
                 <!-- Card footer containing actions -->
                 <div class="card-footer">
-                    <!-- Form to add movie to watchlist -->
-                    <form method="POST" action="{{ url_for('add_to_watchlist') }}" class="mb-2">
-                        <!-- Hidden inputs to pass movie data -->
-                        <input type="hidden" name="media_id" value="{{ movie.id }}">
-                        <input type="hidden" name="title" value="{{ movie.title }}">
-                        <input type="hidden" name="media_type" value="movie">
-                        <!-- Dropdown to select watch status -->
-                        <div class="form-group">
-                            <label for="status-{{ movie.id }}">Status:</label>
-                            <select name="status" id="status-{{ movie.id }}" class="form-control">
-                                <option value="watching">Watching</option>
-                                <option value="completed">Completed</option>
-                            </select>
-                        </div>
-                        <!-- Button to submit the form -->
-                        <button type="submit" class="btn btn-primary btn-block">Add to Watchlist</button>
-                    </form>
+                <form method="POST" action="{{ url_for('add_to_watchlist') }}" class="mb-2">
+                    <input type="hidden" name="tmdb_id" value="{{ movie.tmdb_id or 0 }}">
+                    <input type="hidden" name="title" value="{{ movie.title }}">
+                    <input type="hidden" name="poster_path" value="{{ movie.poster_path }}">
+                    <input type="hidden" name="overview" value="{{ movie.overview }}">
+                    <input type="hidden" name="release_date" value="{{ movie.release_date }}">
+
+                    <div class="form-group">
+                    <label for="status-{{ movie.id }}">Status:</label>
+                    <select name="status" id="status-{{ movie.id }}" class="form-control dark-select" required>
+                    <option value="watching">Watching</option>
+                    <option value="completed">Completed</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="glow-button">Add to Watchlist</button>
+                </form>
+
                     <!-- Button to navigate to the review page for the movie -->
-                    <a href="{{ url_for('review_movie', movie_id=movie.id) }}" class="btn btn-secondary btn-block">Review Movie</a>
+                    <a href="{{ url_for('review_movie', movie_id=movie.id) }}" class="glow-button">Review Movie</a>
                 </div>
             </div>
         </div>

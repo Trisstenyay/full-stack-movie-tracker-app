@@ -8,58 +8,50 @@
     <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">  <!-- Flask's 'url_for' function dynamically generates the URL for the 'style.css' file located in the 'static' folder -->
 </head>
-<body class="signup-container">  <!-- The body of the document is given the 'signup-container' class, which can be used for CSS styling -->
 
-    <h2>Sign Up</h2>  <!-- Displays the title 'Sign Up' in an h2 heading -->
+<body class="signup-container">
 
-    <!-- Form for user registration -->
-    <form action="{{ url_for('signup') }}" method="POST">  <!-- The form sends a POST request to the 'signup' route when submitted -->
-        
-        <!-- Label and input field for the username -->
-        <label for="username"><strong>Username:</strong></label>  <!-- The label for the username input field -->
-        <input class="user-info" type="text" id="username" name="username" required>  <!-- The input field for the username, with the class 'user-info' for styling. 'required' ensures the field is mandatory -->
-        <br>  <!-- Line break to create space between form elements -->
+<!-- Background Video -->
+<video autoplay muted loop id="bg-video">
+  <source src="{{ url_for('static', filename='videos/signup-login-tunnel.mp4') }}" type="video/mp4">
+</video>
 
-        <!-- Label and input field for the email -->
-        <label for="email"><strong>Email:</strong></label>  <!-- The label for the email input field -->
-        <input class="user-info" type="email" id="email" name="email" required>  <!-- The input field for the email address, which validates the email format automatically -->
-        <br>  <!-- Line break to separate input fields -->
-
-        <!-- Label and input field for the password -->
-        <label for="password"><strong>Password:</strong></label>  <!-- The label for the password input field -->
-        <input class="user-info" type="password" id="password" name="password" required>  <!-- The input field for the password, which hides the characters typed -->
-        <br>  <!-- Line break to create space below the input field -->
-        
-        <!-- button to sign up user -->
-        <button class="button">Sign up</button>
+<!-- Form Card -->
+<div class="form-wrapper glow-card mt-5 text-center">
+    
+  <h2 class="text-glow mb-4">Create Your Account</h2>
+    <form action="{{ url_for('signup') }}" method="POST">
+      <label for="username"><strong>Username:</strong></label>
+      <input class="user-info" type="text" id="username" name="username" required>
+      <br>
+      <label for="email"><strong>Email:</strong></label>
+      <input class="user-info" type="email" id="email" name="email" required>
+      <br>
+      <label for="password"><strong>Password:</strong></label>
+      <input class="user-info" type="password" id="password" name="password" required>
+      <br>
+      <button class="glow-button">Sign up</button>
     </form>
+    <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+</div>
 
-
-        <!-- Section to display flash messages (e.g., errors, notifications) -->
-        <div class="container mt-3">
-            <!-- Retrieves and displays flashed messages, if any -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <!-- Iterates over each message and displays it with appropriate styling -->
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <!-- Button to close the alert -->
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-        
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <!-- Popper.js for tooltip and popover positioning -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6Hty5KVphtPhzWj9WO1clHTMGa3JDzwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <!-- Bootstrap's JavaScript plugins -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    </body>
+    <!-- Flash messages -->
+    <div class="container mt-3">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+</body>
 </html>
 
 

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Background Video (Optional) -->
+    <video autoplay muted loop id="bg-video">
+        <source src="{{ url_for('static', filename='videos/movie-lights.mp4') }}" type="video/mp4">
+    </video>
+
+    <h1 class="text-center text-glow my-4">Popular Movies</h1>
+
+    <!-- Back to Home Button -->
+    <div class="d-flex justify-content-start mt-3 mb-3">
+        <a href="{{ url_for('home') }}" class="btn btn-aqua-glow">
+        ← Back to Home
+        </a>
+    </div>
+
+    {% if movies %}
+  <div class="row">
+    {% for movie in movies %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          
+          <!-- Movie Poster -->
+          <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="{{ movie.title }}" class="card-img-top" />
+
+          <!-- Movie Info -->
+          <div class="card-body">
+            <h5 class="card-title">{{ movie.title }}</h5>
+            <p class="card-text">
+              <small class="text-muted">Released: {{ movie.release_date }}</small>
+            </p>
+            <p class="card-text">{{ movie.overview[:200] }}...</p>
+          </div>
+
+          <!-- ⭐ Add to Watchlist Form -->
+          <div class="card-footer">
+            <form method="POST" action="{{ url_for('add_to_watchlist') }}">
+              <input type="hidden" name="tmdb_id" value="{{ movie.id | string }}">
+              <input type="hidden" name="title" value="{{ movie.title }}">
+              <input type="hidden" name="poster_path" value="{{ movie.poster_path }}">
+              <input type="hidden" name="overview" value="{{ movie.overview }}">
+              <input type="hidden" name="release_date" value="{{ movie.release_date }}">
+
+              <div class="form-group">
+                <label for="status-{{ movie.id }}">Status:</label>
+                <select name="status" id="status-{{ movie.id }}" class="form-control dark-select" required>
+                  <option value="watching">Watching</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+
+              <button class="btn btn-aqua-glow w-100" type="submit">Add to Watchlist</button>
+            </form>
+
+            <a href="{{ url_for('review_movie', movie_id=movie.id) }}" class="glow-button">Review Movie</a>
+
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

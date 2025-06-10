@@ -13,13 +13,13 @@
     <title>{% block title %}My Movies App{% endblock %}</title>
 </head>
 
-<body style="background-color: grey;">
+<body class="d-flex flex-column min-vh-100">
     <header>
         <!-- Navigation bar with Bootstrap classes for styling -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
                 <!-- Brand name linking to the home page -->
-                <a class="navbar-brand text-white" href="{{ url_for('home') }}">My Movies App</a>
+                <a class="navbar-brand aqua-text" href="{{ url_for('home') }}">My Movie Tracker App</a>
                 <!-- Button for toggling the navbar on smaller screens -->
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -28,24 +28,20 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
-                            <a class="nav-link search-movies" href="{{ url_for('search') }}">Search for all movies</a>
-                        </li>
+
                         <!-- Checks if the user is authenticated -->
                         {% if user.is_authenticated %}
                             <!-- Displays the user's username and a logout link -->
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('profile') }}">Hi, {{ user.username }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                                <a class="nav-link aqua-text" href="{{ url_for('profile') }}">Hi, {{ user.username }}</a>
                             </li>
                         {% else %}
                             <!-- Provides links to sign up and login pages for unauthenticated users -->
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+                                <a class="nav-link aqua-text" href="{{ url_for('signup') }}">Sign Up</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                                <a class="nav-link aqua-text" href="{{ url_for('login') }}">Login</a>
                             </li>
                         {% endif %}
                     </ul>
@@ -54,6 +50,7 @@
         </nav>
     </header>
 
+    <main class="flex-fill">
     <!-- Main content container with a top margin -->
     <div class="container mt-3">
         <!-- Retrieves and displays flashed messages, if any -->
@@ -71,14 +68,14 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+    <!-- Main content block -->
+      {% block content %}{% endblock %}
     </div>
+  </main>
 
-    <!-- Placeholder for content to be defined in child templates -->
-    {% block content %}{% endblock %}
-
-    <footer>
-        <!-- Footer content -->
-        <p>&copy; 2024 My App</p>
+    <!-- Footer content -->
+    <footer class="footer text-center mt-4">
+        <p class="aqua-text">&copy; 2025 My Movie Tracker App</p>
     </footer>
 
     <!-- Optional JavaScript dependencies for Bootstrap functionality -->

@@ -1,26 +1,79 @@
-{% extends "base.html" %}  <!-- Inherits the base template to maintain consistent layout and structure across pages -->
+{% extends "base.html" %}
 
-{% block content %}  <!-- Defines the content block that will be inserted into the base template -->
+{% block content %}
+<div class="container">
 
-<div class="container">  <!-- Creates a container div for styling and layout purposes -->
-    <h1>My Watchlist</h1>  <!-- Displays the main heading of the page -->
-    <ul>  <!-- Starts an unordered list to display the movies -->
-        {% for movie in movies %}  <!-- Begins a loop to iterate over each movie in the 'movies' context variable -->
-        <li>  <!-- Starts a list item for each movie -->
-            <strong>{{ movie.title }}</strong>  <!-- Displays the title of the movie in bold -->
-            - Released: {{ movie.release_date }}  <!-- Displays the release date of the movie -->
-            <p>{{ movie.overview }}</p>  <!-- Displays a brief overview or description of the movie -->
-            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="Movie Poster">  <!-- Displays the movie poster image with a specified width of 500 pixels -->
-        </li>  <!-- Ends the list item -->
-        {% endfor %}  <!-- Ends the loop -->
-    </ul>  <!-- Ends the unordered list -->
+    <!-- Background Video for watchlist Page -->
+    <video autoplay muted loop id="bg-video">
+        <source src="{{ url_for('static', filename='videos/beautiful-tree.mp4') }}" type="video/mp4">
 
-    {% if not movies %}  <!-- Checks if the 'movies' list is empty -->
-        <p>No movies available to display.</p>  <!-- Displays a message indicating no movies are available -->
-    {% endif %}  <!-- Ends the if statement -->
-</div>  <!-- Ends the container div -->
+    </video>
 
-{% endblock %}  <!-- Ends the content block -->
+    <!-- Watchlist Header -->
+    <h1 class="text-center text-glow my-4">My Watchlist</h1>
+
+    {% if movies %}
+    <div class="row">
+
+        {% for movie in movies %}
+        <div class="col-md-4 mb-4">
+            <div class="card result-card">
+
+                <!-- Movie Poster -->
+                <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" 
+                     alt="{{ movie.title }}" 
+                     class="search-poster-img" />
+
+                <!-- Movie Info -->
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <p class="card-text">
+                        <small class="text-muted">Released: {{ movie.release_date }}</small>
+                    </p>
+                    <p class="card-text">
+                        {{ (movie.overview[:200]) if movie.overview else "No overview available" }}...
+                    </p>
+
+                </div>
 
 
+                <!-- Card Footer -->
+                <div class="card-footer">
 
+                    <!-- Update Status Form -->
+                    <form method="POST" action="{{ url_for('update_status', movie_id=movie.id) }}" class="form-group mt-2">
+
+                        <label for="status-{{ movie.id }}">Status:</label>
+                        <select name="status" id="status-{{ movie.id }}" class="form-control dark-select">
+                            <option value="watching" {% if movie.status == "watching" %}selected{% endif %}>Watching</option>
+                            <option value="completed" {% if movie.status == "completed" %}selected{% endif %}>Completed</option>
+                            <option value="plan_to_watch" {% if movie.status == "plan_to_watch" %}selected{% endif %}>Plan to Watch</option>
+                        </select>
+                        <button class="btn btn-aqua-glow mt-2" type="submit">Update Status</button>
+                    </form>
+
+                    <!-- Remove from Watchlist Form -->
+                    <form method="POST" action="{{ url_for('remove_from_watchlist', movie_id=movie.id) }}">
+                        <button class="btn btn-danger-glow mt-2" type="submit">Remove from Watchlist</button>
+                    </form>
+
+                </div> <!-- End card-footer -->
+
+            </div> <!-- End card -->
+        </div> <!-- End column -->
+        {% endfor %}
+
+    </div> <!-- End row -->
+
+    {% else %}
+    <!-- Message if no movies in watchlist -->
+    <p class="text-center">No movies available to display.</p>
+    {% endif %}
+
+    <!-- Back to Movies Button -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('show_popular_movies') }}" class="btn btn-aqua-glow">Back to Popular</a>
+    </div>
+
+</div> <!-- End container -->
+{% endblock %}

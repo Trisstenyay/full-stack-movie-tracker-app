@@ -1,29 +1,27 @@
-{% extends "base.html" %}
-{# Inherit from the base template to maintain consistent layout #}
+{% extends 'base.html' %}
+{# Inherit from the base template #}
 
-{% block title %}Home - Movie App{% endblock %}
-{# Define the title of the page; this will be inserted into the title block of the base template #}
+{% block title %}Movie Tracker App{% endblock %}
 
 {% block content %}
-{# Begin the content block; content here will be inserted into the base template's content area #}
+{% if user.is_authenticated %}
+<div class="d-flex justify-content-center mt-5">
 
-    {% if user.is_authenticated %}
-    {# Check if the user is logged in; display the following links only for authenticated users #}
+  <!-- Background Video for Logged In Home Page -->
+<video autoplay muted loop id="bg-video">
+  <source src="{{ url_for('static', filename='videos/purple-energy.mp4') }}" type="video/mp4">
+</video>
 
-        <a href="{{ url_for('display_movies') }}" class="view-all-movies">View all movies</a>
-        {# Link to the 'display_movies' route; 'view-all-movies' is a CSS class for styling #}
-
-        <br>
-        {# Line break for spacing between links #}
-
-        <a href="{{ url_for('display_watchlist') }}" class="view-my-watchlist">View my watchlist</a>
-        {# Link to the 'display_watchlist' route; 'view-my-watchlist' is a CSS class for styling #}
-
-    {% endif %}
-    {# End of the authenticated user check #}
-
+<div class="home-welcome-card">
+    <h4 class="card-title mb-4">Welcome back, {{ user.username }}!</h4>
+    <a href="{{ url_for('display_movies') }}" class="glow-button mb-2">🎬 View All Movies</a>
+    <a href="/popular" class="glow-button">🔥 View Popular Movies</a>
+    <a href="{{ url_for('watchlist') }}" class="glow-button">⭐ View My Watchlist</a>
+    <a href="/logout" class="glow-button">🚪 Logout</a>
+</div>
+</div>
+{% endif %}
 {% endblock %}
-{# End of the content block #}
 
 
 

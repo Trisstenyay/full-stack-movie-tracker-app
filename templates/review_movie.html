@@ -20,70 +20,52 @@
 </head>
 
 <body class="review-movie-container">
-    <!-- Applies the 'review-movie-container' class for styling the body -->
-
     <h2><strong>Review Movie: {{movie.title | upper  }}</strong></h2>
-    <!-- Main heading for the review page, with bold text -->
-
-    <!-- Form for submitting a movie review -->
+    
     <form method="POST" action="{{ url_for('review_movie', movie_id=movie.id) }}">
-        <!-- Specifies the form submission method and target URL -->
+    {{ form.hidden_tag() }}
 
-        {{ form.hidden_tag() }}
-        <!-- Renders a hidden CSRF token for security (Flask-WTF) -->
+    <div class="form-wrapper">
+    <!-- Rating -->
+    <label for="rating"><strong>Rating:</strong></label>
+    {{ form.rating(class_="user-info") }}
+    {% if form.rating.errors %}
+    <small style="color: red;">{{ form.rating.errors[0] }}</small>
+    {% endif %}
 
-        <label for="rating"><strong>Rating:</strong></label>
-        <!-- Label for the rating input field, with bold text -->
+    <!-- Review -->
+    <label for="review"><strong>Review:</strong></label>
+    {{ form.review_text(class_="user-info", rows=5) }}
+    {% if form.review_text.errors %}
+    <small style="color: red;">{{ form.review_text.errors[0] }}</small>
+    {% endif %}
 
-       
-        {{ form.rating(class_="user-info") }}
-        <!-- Numeric input for rating, constrained between 1 and 5, styled with 'user-info' class, and marked as required -->
-        {% if form.rating.errors %}
-            <small style="color: red;">{{ form.rating.errors[0] }}</small>
-        {% endif %}
-
-        <br>
-        <!-- Line break for spacing between form elements -->
-
-        <label for="review"><strong>Review:</strong></label>
-        <!-- Label for the review textarea, with bold text -->
-
-        {{ form.review_text(class_="user-info", rows=5) }}
-        <!-- Text area for the review content, with 5 rows, styled with 'user-info' class, and marked as required -->
-        {% if form.review_text.errors %}
-            <small style="color: red;">{{ form.review_text.errors[0] }}</small>
-        {% endif %}
-
-        <br>
-        <!-- Line break for spacing between form elements -->
-
-        {{ form.submit(class_="button") }}
-        <!-- Submit button for the form, styled with 'button' class -->
+    <!-- Submit button INSIDE wrapper -->
+    {{ form.submit(class_="glow-button") }}
+    </div>
     </form>
 
+    <a href="{{ url_for('display_movies') }}" class="back-button">← Back to Movies</a>
 
-
-    <!-- Display existing reviews -->
     <h3>Reviews for: {{movie.title}}</h3>
     {% if reviews %}
         <ul>
-        {% for review in reviews %}
+            {% for review in reviews %}
             <li>
                 <strong>{{ review.user.username }}</strong>: 
                 <em>Rating: {{ review.rating }}/5</em><br>
                 {{ review.review_text }}
-                <button class="button delete-button"><a href="{{ url_for('delete_review', review_id=review.id) }}">Delete</a></button>
+            <form method="POST" action="{{ url_for('delete_review', review_id=review.id) }}">
+                {{ form.hidden_tag() }}  {# if using CSRF protection with Flask-WTF #}
+                <button type="submit" class="delete-button">Delete</button>
+            </form>
             </li>
-        {% endfor %}
+            {% endfor %}
         </ul>
-    {% else %}
-        <p>No reviews yet. Be the first to leave one!</p>
-    {% endif %}
-
-
-
+            {% else %}
+            <p>No reviews yet. Be the first to leave one!</p>
+            {% endif %}
 </body>
 <!-- Closes the body of the document -->
-
 </html>
 <!-- Closes the HTML document -->

@@ -1,78 +1,235 @@
-/* Existing Signup and Login Container Styles */
-.signup-container,
-.login-container,
-.review-movie-container {
-    background-color: grey;
+/* Global dark theme setup */
+body {
+  background-color: #0d1117;   /* Onyx / GitHub-style dark */
+  color: #00ffff;              
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 
+#bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.subtitle-container {
+  color: #00ffff; /* aqua glow color */
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  text-align: center;
+  animation: subtitleFadeIn 2s ease-in-out;
+}
+
+.subtitle-container span {
+  margin: 0 0.5rem; /* space between each phrase */
+}
+
+
+@keyframes subtitleFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.form-wrapper {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+
+/* --- Labels --- */
 label {
     display: block;
 }
 
 
-/* Styling for User Input Fields */
+/* --- Input Field Styling --- */
 .user-info {
-    background-color: transparent; /* auto background */
-    color: black; /* black text */
-    border: 2px solid #393d47; /* Border with specified color */
-    margin-bottom: 10px; /* Space between input fields */
-    outline: none;
-    font-size: 16px; /* Font size */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    border-radius: 5px; /* Rounded corners */
-    padding: 8px; /* Inner spacing */
-}
-
-
-.search-control {
-    color: #393d47;
-}
-
-
-/* Custom Links Styling (for 'View all movies' and 'View my watchlist') */
-.view-all-movies,
-.view-my-watchlist {
-    display: inline-block;
+    background-color: #0d1117;
+    color: white;
+    border: 2px solid #00ffff;
     margin-bottom: 10px;
-    background-color: #393d47; /* Custom background */
-    color: white; /* White text */
-    border: none; /* No border */
-    padding: 5px 10px; /* Padding */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    border-radius: 5px; /* Rounded corners */
+    outline: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 0 8px #00ffff88;
 }
 
 
-/* Base Button Styling for Buttons */
-.button {
-    background-color: #393d47; /* Custom background */
-    color: white; /* White text */
-    border: none; /* No border */
-    padding: 5px 10px; /* Padding */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    border-radius: 5px; /* Rounded corners */
+.user-info:focus {
+    outline: none;
+    box-shadow: 0 0 12px #00ffff;
+    border-color: #00ffff;
 }
 
 
-/* Button Hover Effect */
-.button:hover,
-.view-all-movies:hover,
-.view-my-watchlist:hover {
-    background-color: #2c2f36; /* Darker background on hover */
+/* --- Search Control Input Color --- */
+.search-control {
+    color: white;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 8px #00ffff;
+    background-color: #0d1117;
+    color: white;
+}
+
+
+.aqua-text {
+  color: #00ffff !important;  /* Aqua */
+  text-shadow: 0 0 5px #00ffff;
+}
+
+
+.home-welcome-card {
+  background-color: #1c1c1c;
+  color: white;
+  padding: 30px;
+  width: 22rem;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  text-align: center;
+  margin: 0 auto;
+  animation: pulse 2s infinite;
+}
+
+
+/* Aqua Glowing Button Style */
+.glow-button {
+  display: block; /* force full-width block layout */
+  width: auto;
+  width: 200px;
+  margin: 20px auto;
+  margin-bottom: 15px;
+  background-color: #00ffff; /* Aqua */
+  color: black;
+  border: none;
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff inset;
+  transition: all 0.3s ease-in-out;
+}
+
+
+.glow-button:hover {
+  background-color: #0ff;
+  color: black;
+  box-shadow: 0 0 18px #00ffff, 0 0 30px #00ffff inset;
+  transform: scale(1.05);
+  animation: pulse 1s infinite;
+}
+
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff inset;
+  }
+  50% {
+    box-shadow: 0 0 20px #00ffff, 0 0 25px #00ffff inset;
+  }
+  100% {
+    box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff inset;
+  }
+}
+
+
+.back-button {
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #00ffff;
+    background-color: transparent;
+    border: 2px solid #00ffff;
+    padding: 4px 7px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.3) ;
+}
+
+
+.back-button:hover {
+    background-color: #00ffff;
+    color: black;
+    box-shadow: 0 0 12px #00ffff;
+    transform: scale(1.05);
+}
+
+
+.delete-button {
+  background-color: #ff4d4d;     /* red tone */
+  color: white;
+  padding: 4px 12px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
 }
 
 
 .delete-button:hover {
-    background-color: crimson;
+  background-color: #ff1a1a;
+  box-shadow: 0 0 12px rgba(255, 77, 77, 1);
+  transform: scale(1.05);
 }
 
 
-/* Styling for Movies List */
+.btn-aqua-glow {
+  background-color: #00ffff;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: bold;
+  box-shadow: 0 0 10px #00ffff;
+  transition: all 0.3s ease-in-out;
+}
+
+
+.btn-aqua-glow:hover {
+  box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff;
+  transform: translateY(-2px);
+}
+
+
+.btn-danger-glow {
+  background-color: #ff0044;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: bold;
+  box-shadow: 0 0 10px #ff0044;
+  transition: all 0.3s ease-in-out;
+}
+
+
+.btn-danger-glow:hover {
+  box-shadow: 0 0 20px #ff0044, 0 0 30px #ff0044;
+  transform: translateY(-2px);
+}
+
+
+/* --- Movies List Layout --- */
 .movies-list {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -81,43 +238,53 @@ label {
 }
 
 
-/* Movie Image Styling */
+/* --- Movie Images --- */
 .movie-item img {
     width: 100%;
     height: auto;
-    border-radius: 5px; /* Rounded corners for images */
+    border-radius: 5px;
 }
 
 
-/* Styling for Links */
+/* --- Link Styling --- */
 a {
     color: white;
     text-decoration: none;
 }
 
 
-/* Hover Effect for Links */
 a:hover {
     text-decoration: none;
     color: inherit;
 }
 
 
-/* Hover Effect for Cards */
+.card {
+  background-color: #0d1117;  /* onyx look */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+
+/* --- Card Hover Effect --- */
 .card:hover {
     transform: translateY(-5px);
     transition: transform 0.2s;
+    box-shadow: 0 0 35px rgba(0, 255, 255, 0.5); /* Brighter on hover */
 }
 
 
-/* Responsive Card Image Styling (adjusts for different screen sizes) */
 .card-img-top {
-    height: 400px;
-    object-fit: cover;
+  height: auto;
+  object-fit: contain;
 }
 
 
-/* Title and Text Styles for Cards */
+/* --- Card Text --- */
 .card-title {
     font-size: 1.25rem;
     font-weight: bold;
@@ -129,9 +296,81 @@ a:hover {
 }
 
 
-/* Card Footer Styling */
+.search-poster-img {
+  width: 100%;
+  height: 400px;              
+  object-fit: cover;          
+  display: block;
+  border-radius: 5px;         
+}
+
+
+.card.result-card {
+  transform: scale(0.85); /* Shrinks everything down proportionally */
+  transform-origin: top;  /* Makes sure it shrinks from the top instead of center */
+  margin-bottom: 2rem;
+}
+
+
+/* --- Card Footer --- */
 .card-footer {
-    background-color: #f8f9fa;
+    background-color: #0d1117;
+}
+
+
+.dark-select {
+  background-color: #0d1117;  /* Onyx background */
+  color: white;
+  border: 1px solid #00ffff;  /* Aqua border */
+  border-radius: 5px;
+  padding: 6px 10px;
+   appearance: none; /* Hide default arrow in some browsers */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+
+.dark-select option {
+  background-color: #0d1117;
+  color: white;
+}
+
+
+/* Optional: glowing focus effect */
+.dark-select:focus {
+  outline: none;
+  box-shadow: 0 0 8px #00ffff;
+  border-color: #00ffff;
+}
+
+
+.review-movie-container {
+    background-color: #0d1117; /* Onyx dark */
+    color: white;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+
+/* Review Movie Form Styling */
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  background-color: #0d1117;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #00ffff;
+}
+
+
+.footer {
+  background-color: #343a40;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+  width: 100%;
 }
 
 

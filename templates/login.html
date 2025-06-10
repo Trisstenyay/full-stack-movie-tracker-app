@@ -8,46 +8,51 @@
     <!-- Define the title of the document -->
     <title>Document</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <!-- Link to the custom CSS file located in the 'static' directory -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="login-container">
-    <!-- Main heading for the login page -->
+
+<video autoplay muted loop id="bg-video">
+  <source src="{{ url_for('static', filename='videos/signup-login-tunnel.mp4') }}" type="video/mp4">
+</video>
+
+  <div class="form-wrapper glow-card mt-5 text-center">
     <h2>Login</h2>
-    <!-- Form for user login; uses POST method to submit data securely -->
-    <form method="POST">
-        <!-- Label for the username input field -->
-        <label for="username"><strong>Username</strong></label>
-        <!-- Input field for the username; 'user-info' class applies custom styles -->
-        <input class="user-info" type="text" id="username" name="username" required>
-        <br>
-        <!-- Label for the password input field -->
-        <label for="password"><strong>Password</strong></label>
-        <!-- Input field for the password; 'user-info' class applies custom styles -->
-        <input class="user-info" type="password" id="password" name="password" required>
-        <br>
-        <!-- Submit button for the form; 'button' class applies custom styles -->
-        <button class="button" type="submit">Login</button>
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <!-- Username -->
+      <label for="username"><strong>Username:</strong></label>
+      <input class="user-info" type="text" id="username" name="username" required>
+      <br>
+
+      <!-- Password -->
+      <label for="password"><strong>Password:</strong></label>
+      <input class="user-info" type="password" id="password" name="password" required>
+      <br>
+
+      <!-- Login Button -->
+      <button class="glow-button">Login</button>
     </form>
 
+    <!-- Back Button -->
+    <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+  </div>
 
-    <div class="container mt-3">
-        <!-- Retrieves and displays flashed messages, if any -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <!-- Iterates over each message and displays it with appropriate styling -->
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <!-- Button to close the alert -->
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
+  <!-- Optional Flash Message Section -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
 </body>
 </html>
 
