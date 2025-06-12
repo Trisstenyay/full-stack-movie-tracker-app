@@ -48,7 +48,7 @@ def load_user(user_id):
 with app.app_context():
     connect_db(app)
     # db.drop_all()      # ✅ Drop all tables (be careful: this deletes all data)
-    # db.create_all()    # ✅ Recreate all tables with new schema
+    db.create_all()    # ✅ Recreate all tables with new schema
 
 
 
