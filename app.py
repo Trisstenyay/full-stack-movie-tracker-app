@@ -17,10 +17,9 @@ app = Flask(__name__) # Initialize the Flask app Create an instance of the Flask
 
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('LOCAL_DATABASE_URL')
-
+# Use production DB on Render, fallback to local DB on dev
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or os.getenv('LOCAL_DATABASE_URL')
 app.config['SECRET_KEY'] = "Capstone"  
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False # Disable SQLAlchemy's event system for performance reasons (optional but common practice)
 
 # Initialize Flask-Login's LoginManager to handle user authentication
