@@ -3,6 +3,8 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import traceback
 import requests # Import the requests library to make HTTP requests
 from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy, an ORM (Object Relational Mapper) for database interactions
+db = SQLAlchemy()
+from sqlalchemy import func
 from models import db, connect_db # First, import db and connect_db
 from models import User, Movie, Genre, Watchlist, Review # Import the models from the models.py file to use in the Flask app 
 from forms import ReviewForm # Import the ReviewForm class from the forms module to handle form validation and submission
@@ -86,7 +88,7 @@ def signup():
     If not, it creates a new user and redirects to the login page.
     """
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].lower()
         email = request.form["email"]
         password = request.form["password"]
         # Check if the username or email already exists
@@ -116,9 +118,9 @@ def login():
         return redirect(url_for('home'))  # Redirect to home if already logged in
 
     if request.method == "POST":
-        username = request.form['username']
+        username = request.form['username'].lower()
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter(db.func.lower(User.username) == username).first()
 
         if user and user.check_password(password):  # Check if password matches
             login_user(user)
