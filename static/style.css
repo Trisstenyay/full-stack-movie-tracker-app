@@ -131,7 +131,6 @@ label {
   color: black;
   box-shadow: 0 0 18px #00ffff, 0 0 30px #00ffff inset;
   transform: scale(1.05);
-  animation: pulse 1s infinite;
 }
 
 

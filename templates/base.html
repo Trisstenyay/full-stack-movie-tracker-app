@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Specifies the character encoding for the HTML document -->
     <meta charset="UTF-8">
-    <!-- Sets the viewport to ensure the page is responsive on all devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Links to Bootstrap CSS for styling and responsive design -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <!-- Links to custom CSS file for additional styling -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Defines the title of the document; can be overridden by child templates -->
     <title>{% block title %}My Movies App{% endblock %}</title>
 </head>
 
