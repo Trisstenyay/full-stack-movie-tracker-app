@@ -2,15 +2,12 @@ from flask import Flask, jsonify, render_template, request, redirect, url_for, f
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user # Import Flask-Login components for user authentication and session management
 import traceback
 import requests # Import the requests library to make HTTP requests
-from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy, an ORM (Object Relational Mapper) for database interactions
-db = SQLAlchemy()
-from sqlalchemy import func
 from models import db, connect_db # First, import db and connect_db
 from models import User, Movie, Genre, Watchlist, Review # Import the models from the models.py file to use in the Flask app 
 from forms import ReviewForm # Import the ReviewForm class from the forms module to handle form validation and submission
-from datetime import datetime # Import Python's built-in datetime module to handle date and time
 import os  # Import the os module to access environment variables
 from dotenv import load_dotenv # This package loads variables from your .env file into your environment.
+from sqlalchemy.exc import IntegrityError
 
 # Load variables from the .env file into the environment
 load_dotenv()
@@ -18,11 +15,21 @@ load_dotenv()
 app = Flask(__name__) # Initialize the Flask app Create an instance of the Flask class
 
 
+# Robust database + secret config
+db_uri = os.environ.get("DATABASE_URL") or os.environ.get("LOCAL_DATABASE_URL") or "sqlite:///local.db"
 
-# Use production DB on Render, fallback to local DB on dev
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or os.getenv('LOCAL_DATABASE_URL')
-app.config['SECRET_KEY'] = "Capstone"  
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False # Disable SQLAlchemy's event system for performance reasons (optional but common practice)
+# Fix provider prefix if needed (postgres:// -> postgresql://)
+if db_uri.startswith("postgres://"):
+    db_uri = db_uri.replace("postgres://", "postgresql://", 1)
+
+# Force SSL when connecting to Render Postgres
+if "render.com" in db_uri and "sslmode=" not in db_uri:
+    db_uri += ("&" if "?" in db_uri else "?") + "sslmode=require"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+
 
 # Initialize Flask-Login's LoginManager to handle user authentication
 login_manager = LoginManager() # Create an instance of LoginManager to manage user sessions
@@ -46,12 +53,18 @@ def load_user(user_id):
 
 
 
-# Create tables in the database based on the models
 with app.app_context():
     connect_db(app)
-    # db.drop_all()      # ✅ Drop all tables (be careful: this deletes all data)
-    # db.create_all()    # ✅ Recreate all tables with new schema
 
+    # Auto-create tables in development so you don't get "no such table"
+    if os.environ.get("FLASK_ENV") == "development":
+        from models import User, Movie, Genre, Watchlist, Review
+        db.create_all()
+
+    # Optional: one-time production bootstrap (use RUN_DB_CREATE=1 on Render once)
+    if os.environ.get("RUN_DB_CREATE") == "1":
+        from models import User, Movie, Genre, Watchlist, Review
+        db.create_all()
 
 
 
@@ -79,32 +92,34 @@ def home():
         return render_template("landing.html", user=current_user)
 
 
-
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    """
-    Sign up route. Handles both GET (rendering the signup form) and POST (processing form data)
-    requests. The POST request checks if the username or email already exists in the database.
-    If not, it creates a new user and redirects to the login page.
-    """
     if request.method == "POST":
-        username = request.form["username"].lower()
-        email = request.form["email"]
+        username = request.form["username"].strip().lower()
+        email = request.form["email"].strip().lower()
         password = request.form["password"]
-        # Check if the username or email already exists
-        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
-        if existing_user:
+
+        # Pre-check to give a quick friendly message
+        exists = User.query.filter((User.username == username) | (User.email == email)).first()
+        if exists:
             flash("Username or email already exists.", "danger")
             return redirect(url_for("signup"))
 
-        new_user = User(username=username, email=email)
-        new_user.set_password(password)  # Hash the password before saving
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Registration successful. Please log in.", "success")
-        return redirect(url_for("login"))
+        try:
+            new_user = User(username=username, email=email)
+            new_user.set_password(password)  # your model’s hasher
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Registration successful. Please log in.", "success")
+            return redirect(url_for("login"))
+        except IntegrityError:
+            db.session.rollback()
+            # Covers race conditions / uniqueness constraints
+            flash("That username or email is already taken.", "danger")
+            return redirect(url_for("signup"))
 
     return render_template("signup.html")
+
 
 
 
@@ -470,6 +485,7 @@ def update_status(movie_id):
 
 
 @app.route("/remove_from_watchlist/<int:movie_id>", methods=["POST"])
+@login_required
 def remove_from_watchlist(movie_id):
     """
     Removes a movie from the user's watchlist.
