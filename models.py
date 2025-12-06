@@ -22,7 +22,7 @@ def connect_db(app):
 
 class User(db.Model, UserMixin):
     """Represents a user in the application."""
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
@@ -91,7 +91,7 @@ class Watchlist(db.Model):
     __tablename__ = "watchlist"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)
     added_on = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), default="watching")
@@ -115,7 +115,7 @@ class Review(db.Model):
     __tablename__ = "review"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     review_text = db.Column(db.Text, nullable=True)

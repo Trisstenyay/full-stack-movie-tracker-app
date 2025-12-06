@@ -22,14 +22,19 @@ db_uri = os.environ.get("DATABASE_URL") or os.environ.get("LOCAL_DATABASE_URL") 
 if db_uri.startswith("postgres://"):
     db_uri = db_uri.replace("postgres://", "postgresql://", 1)
 
-# Force SSL when connecting to Render Postgres
+# Normalize query params and ensure exactly one sslmode=require when using Render Postgres
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
+
+u = urlparse(db_uri)
+qs = dict(parse_qsl(u.query))           # existing query params -> dict
 if "render.com" in db_uri:
-    if "?" in db_uri:
-        db_uri += "&sslmode=require"
-    else:
-        db_uri += "?sslmode=require"
+    qs["sslmode"] = "require"           # set (overwrites if present)
+db_uri = urlunparse(u._replace(query=urlencode(qs)))
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+
 
 
 
