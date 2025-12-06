@@ -15,20 +15,30 @@ load_dotenv()
 app = Flask(__name__) # Initialize the Flask app Create an instance of the Flask class
 
 
-# Robust database + secret config
-db_uri = os.environ.get("DATABASE_URL") or os.environ.get("LOCAL_DATABASE_URL") or "sqlite:///local.db"
+# -------------------------------------------------
+# Database Configuration (Local + Render)
+# -------------------------------------------------
 
-# Fix provider prefix if needed (postgres:// -> postgresql://)
+# Try production DB first, fallback to local for development
+db_uri = (
+    os.environ.get("DATABASE_URL") or
+    os.environ.get("LOCAL_DATABASE_URL") or
+    "sqlite:///local.db"
+)
+
+# Fix provider prefix if Render gives postgres://
 if db_uri.startswith("postgres://"):
     db_uri = db_uri.replace("postgres://", "postgresql://", 1)
 
-# Force SSL when connecting to Render Postgres
+# Ensure SSL for Render PostgreSQL
 if "render.com" in db_uri and "sslmode=" not in db_uri:
     db_uri += ("&" if "?" in db_uri else "?") + "sslmode=require"
 
+# Apply final config
 app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+
 
 
 # Initialize Flask-Login's LoginManager to handle user authentication
