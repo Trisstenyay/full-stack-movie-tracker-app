@@ -76,11 +76,15 @@ with app.app_context():
 
 
 
-# Authentication headers and API_KEY = Bearer token
+TMDB_BEARER = os.environ.get("TMDB_BEARER")
+if not TMDB_BEARER:
+    raise RuntimeError("TMDB_BEARER not set. Add it to your environment variables.")
+
 headers = {
-    "accept": "application/json", # Specify the type of data we accept (JSON)
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDkzODdhZGNkMTMyZGMzZTc4NzU2MWRmNzBlNjZiMyIsIm5iZiI6MTczNDYzMTk3OC4wMTQwMDAyLCJzdWIiOiI2NzY0NjIyYThkYzA0NmI5MTVhNGZjNDMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.1Qp7p_YrH--rWMUizGo8ywOULxwoMebhZo5NBXXFiXk" # Added my API token
+    "accept": "application/json",
+    "Authorization": f"Bearer {TMDB_BEARER}",
 }
+
 
 
 
