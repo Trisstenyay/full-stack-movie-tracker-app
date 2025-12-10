@@ -35,6 +35,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
+# NEW: make the pool resilient to Render closing idle SSL connections
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,   # test a connection before using it; replace if dead
+    "pool_recycle": 300,     # recycle connections every 5 minutes
+    "pool_size": 2,          # small pool = fewer idle conns (good for free tier)
+    "max_overflow": 5,       # allow short bursts
+    "pool_use_lifo": True,   # prefer most-recent connections
+}
 
 
 
@@ -59,10 +67,10 @@ def load_user(user_id):
     """
     return User.query.get(int(user_id))  # Convert user_id to int and query the User model to fetch the user
 
-
+connect_db(app)
 
 with app.app_context():
-    connect_db(app)
+    
 
     # Auto-create tables in development so you don't get "no such table"
     if os.environ.get("FLASK_ENV") == "development":
